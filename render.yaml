@@ -1,11 +1,10 @@
 services:
   - type: web
-    name: truck-audit-app
-    env: docker
-    plan: free
-    autoDeploy: true
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
+    name: truck-audit-backend
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -16,8 +15,23 @@ services:
       - key: ALGORITHM
         value: HS256
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
-        value: "43200"
+        value: "30"
+
+  - type: web
+    name: truck-audit-frontend
+    env: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm run preview -- --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: truck-audit-backend
+          type: web
+          property: url
 
 databases:
   - name: truck-audit-db
+    databaseName: truck_audit
+    user: truck_user
     plan: free
