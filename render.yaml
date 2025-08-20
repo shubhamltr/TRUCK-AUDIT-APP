@@ -24,11 +24,9 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run preview -- --host 0.0.0.0 --port $PORT
     envVars:
+      # Manually set the backend URL after backend is deployed
       - key: VITE_API_URL
-        fromService:
-          name: truck-audit-backend
-          type: web
-          property: url
+        value: "https://<your-backend-service>.onrender.com"
 
 databases:
   - name: truck-audit-db
